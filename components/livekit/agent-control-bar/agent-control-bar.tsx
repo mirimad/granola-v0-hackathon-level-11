@@ -89,7 +89,7 @@ export function AgentControlBar({
     <div
       aria-label="Voice assistant controls"
       className={cn(
-        'bg-background border-input/50 dark:border-muted flex flex-col rounded-[31px] border p-3 drop-shadow-md/3',
+        'flex flex-col rounded-lg border-2 border-[#7b2cbf] bg-[#1a0f2e]/95 p-3 shadow-[0_0_20px_rgba(123,44,191,0.6)] backdrop-blur-sm',
         className
       )}
       {...props}
@@ -155,8 +155,18 @@ export function AgentControlBar({
             aria-label="Toggle transcript"
             pressed={chatOpen}
             onPressedChange={handleToggleTranscript}
+            className={cn(
+              'border-2 bg-[#2a1a4e] hover:bg-[#3e2563]',
+              chatOpen
+                ? 'border-[#00f5ff] shadow-[0_0_10px_rgba(0,245,255,0.6)]'
+                : 'border-[#7b2cbf]'
+            )}
           >
-            <ChatTextIcon weight="bold" />
+            <ChatTextIcon
+              weight="fill"
+              size={20}
+              className={chatOpen ? 'text-[#00f5ff]' : 'text-[#c77dff]'}
+            />
           </Toggle>
         </div>
 
@@ -166,11 +176,10 @@ export function AgentControlBar({
             variant="destructive"
             onClick={handleDisconnect}
             disabled={!isSessionActive}
-            className="font-mono"
+            className="border-2 border-[#ff006e] bg-[#ff006e] px-3 text-[10px] text-white shadow-[0_0_15px_rgba(255,0,110,0.6)] hover:bg-[#ff006e]/80"
           >
-            <PhoneDisconnectIcon weight="bold" />
-            <span className="hidden md:inline">END CALL</span>
-            <span className="inline md:hidden">END</span>
+            <PhoneDisconnectIcon weight="fill" size={20} />
+            <span className="ml-2 hidden md:inline">END</span>
           </Button>
         )}
       </div>

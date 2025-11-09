@@ -32,6 +32,7 @@ export async function POST(req: Request) {
     // Parse agent configuration from request body
     const body = await req.json();
     const agentName: string = body?.room_config?.agents?.[0]?.agent_name;
+    const cvSummary: string | undefined = body?.cv_summary;
 
     // Generate participant token
     const participantName = 'user';
@@ -41,7 +42,8 @@ export async function POST(req: Request) {
     const participantToken = await createParticipantToken(
       { identity: participantIdentity, name: participantName },
       roomName,
-      agentName
+      agentName,
+      cvSummary
     );
 
     // Return connection details
@@ -66,7 +68,8 @@ export async function POST(req: Request) {
 function createParticipantToken(
   userInfo: AccessTokenOptions,
   roomName: string,
-  agentName?: string
+  agentName?: string,
+  cvSummary?: string
 ): Promise<string> {
   const at = new AccessToken(API_KEY, API_SECRET, {
     ...userInfo,
@@ -84,6 +87,13 @@ function createParticipantToken(
   if (agentName) {
     at.roomConfig = new RoomConfiguration({
       agents: [{ agentName }],
+    });
+  }
+
+  // Add CV summary to participant metadata if available
+  if (cvSummary) {
+    at.metadata = JSON.stringify({
+      cv_summary: cvSummary,
     });
   }
 

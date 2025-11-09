@@ -20,20 +20,21 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'LiveKit',
-  pageTitle: 'LiveKit Voice Agent',
-  pageDescription: 'A voice agent built with LiveKit',
+  companyName: 'LEVEL 11',
+  pageTitle: 'LEVEL 11 // Career OS',
+  pageDescription:
+    'Your AI senior engineer companion for career planning, regular check-ins, and leveling up your professional journey.',
 
   supportsChatInput: true,
   supportsVideoInput: true,
-  supportsScreenShare: true,
+  supportsScreenShare: false,
   isPreConnectBufferEnabled: true,
 
   logo: '/lk-logo.svg',
-  accent: '#002cf2',
+  accent: '#00f5ff',
   logoDark: '/lk-logo-dark.svg',
-  accentDark: '#1fd5f9',
-  startButtonText: 'Start call',
+  accentDark: '#00f5ff',
+  startButtonText: '[ START SESSION ]',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,

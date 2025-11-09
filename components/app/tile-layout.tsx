@@ -20,45 +20,6 @@ const ANIMATION_TRANSITION = {
   mass: 1,
 };
 
-const classNames = {
-  // GRID
-  // 2 Columns x 3 Rows
-  grid: [
-    'h-full w-full',
-    'grid gap-x-2 place-content-center',
-    'grid-cols-[1fr_1fr] grid-rows-[90px_1fr_90px]',
-  ],
-  // Agent
-  // chatOpen: true,
-  // hasSecondTile: true
-  // layout: Column 1 / Row 1
-  // align: x-end y-center
-  agentChatOpenWithSecondTile: ['col-start-1 row-start-1', 'self-center justify-self-end'],
-  // Agent
-  // chatOpen: true,
-  // hasSecondTile: false
-  // layout: Column 1 / Row 1 / Column-Span 2
-  // align: x-center y-center
-  agentChatOpenWithoutSecondTile: ['col-start-1 row-start-1', 'col-span-2', 'place-content-center'],
-  // Agent
-  // chatOpen: false
-  // layout: Column 1 / Row 1 / Column-Span 2 / Row-Span 3
-  // align: x-center y-center
-  agentChatClosed: ['col-start-1 row-start-1', 'col-span-2 row-span-3', 'place-content-center'],
-  // Second tile
-  // chatOpen: true,
-  // hasSecondTile: true
-  // layout: Column 2 / Row 1
-  // align: x-start y-center
-  secondTileChatOpen: ['col-start-2 row-start-1', 'self-center justify-self-start'],
-  // Second tile
-  // chatOpen: false,
-  // hasSecondTile: false
-  // layout: Column 2 / Row 2
-  // align: x-end y-end
-  secondTileChatClosed: ['col-start-2 row-start-3', 'place-content-end'],
-};
-
 export function useLocalTrackRef(source: Track.Source) {
   const { localParticipant } = useLocalParticipant();
   const publication = localParticipant.getTrackPublication(source);
@@ -84,7 +45,6 @@ export function TileLayout({ chatOpen }: TileLayoutProps) {
 
   const isCameraEnabled = cameraTrack && !cameraTrack.publication.isMuted;
   const isScreenShareEnabled = screenShareTrack && !screenShareTrack.publication.isMuted;
-  const hasSecondTile = isCameraEnabled || isScreenShareEnabled;
 
   const animationDelay = chatOpen ? 0 : 0.15;
   const isAvatar = agentVideoTrack !== undefined;
@@ -92,146 +52,131 @@ export function TileLayout({ chatOpen }: TileLayoutProps) {
   const videoHeight = agentVideoTrack?.publication.dimensions?.height ?? 0;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-8 bottom-32 z-50 md:top-12 md:bottom-40">
-      <div className="relative mx-auto h-full max-w-2xl px-4 md:px-0">
-        <div className={cn(classNames.grid)}>
-          {/* Agent */}
-          <div
-            className={cn([
-              'grid',
-              !chatOpen && classNames.agentChatClosed,
-              chatOpen && hasSecondTile && classNames.agentChatOpenWithSecondTile,
-              chatOpen && !hasSecondTile && classNames.agentChatOpenWithoutSecondTile,
-            ])}
-          >
-            <AnimatePresence mode="popLayout">
-              {!isAvatar && (
-                // Audio Agent
-                <MotionContainer
-                  key="agent"
-                  layoutId="agent"
-                  initial={{
-                    opacity: 0,
-                    scale: 0,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    scale: chatOpen ? 1 : 5,
-                  }}
-                  transition={{
-                    ...ANIMATION_TRANSITION,
-                    delay: animationDelay,
-                  }}
-                  className={cn(
-                    'bg-background aspect-square h-[90px] rounded-md border border-transparent transition-[border,drop-shadow]',
-                    chatOpen && 'border-input/50 drop-shadow-lg/10 delay-200'
-                  )}
+    <div className="relative flex h-full w-full items-center justify-center">
+      <div className="relative h-full w-full max-w-2xl">
+        <AnimatePresence mode="popLayout">
+          {!isAvatar && (
+            // Audio Agent - Retro Visualizer
+            <MotionContainer
+              key="agent"
+              layoutId="agent"
+              initial={{
+                opacity: 0,
+                scale: 0.8,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+              }}
+              transition={{
+                ...ANIMATION_TRANSITION,
+                delay: animationDelay,
+              }}
+              className="flex h-full w-full items-center justify-center"
+            >
+              <div className="retro-border pixel-corners relative flex aspect-square w-full max-w-md items-center justify-center rounded-lg bg-gradient-to-br from-[#2a1a4e] to-[#1a0f2e]">
+                <BarVisualizer
+                  barCount={7}
+                  state={agentState}
+                  options={{ minHeight: 10 }}
+                  trackRef={agentAudioTrack}
+                  className="flex h-32 items-end justify-center gap-2"
                 >
-                  <BarVisualizer
-                    barCount={5}
-                    state={agentState}
-                    options={{ minHeight: 5 }}
-                    trackRef={agentAudioTrack}
-                    className={cn('flex h-full items-center justify-center gap-1')}
-                  >
-                    <span
-                      className={cn([
-                        'bg-muted min-h-2.5 w-2.5 rounded-full',
-                        'origin-center transition-colors duration-250 ease-linear',
-                        'data-[lk-highlighted=true]:bg-foreground data-[lk-muted=true]:bg-muted',
-                      ])}
-                    />
-                  </BarVisualizer>
-                </MotionContainer>
-              )}
-
-              {isAvatar && (
-                // Avatar Agent
-                <MotionContainer
-                  key="avatar"
-                  layoutId="avatar"
-                  initial={{
-                    scale: 1,
-                    opacity: 1,
-                    maskImage:
-                      'radial-gradient(circle, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 20px, transparent 20px)',
-                    filter: 'blur(20px)',
-                  }}
-                  animate={{
-                    maskImage:
-                      'radial-gradient(circle, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 500px, transparent 500px)',
-                    filter: 'blur(0px)',
-                    borderRadius: chatOpen ? 6 : 12,
-                  }}
-                  transition={{
-                    ...ANIMATION_TRANSITION,
-                    delay: animationDelay,
-                    maskImage: {
-                      duration: 1,
-                    },
-                    filter: {
-                      duration: 1,
-                    },
-                  }}
-                  className={cn(
-                    'overflow-hidden bg-black drop-shadow-xl/80',
-                    chatOpen ? 'h-[90px]' : 'h-auto w-full'
-                  )}
-                >
-                  <VideoTrack
-                    width={videoWidth}
-                    height={videoHeight}
-                    trackRef={agentVideoTrack}
-                    className={cn(chatOpen && 'size-[90px] object-cover')}
+                  <span
+                    className={cn([
+                      'min-h-4 w-4 rounded-sm bg-[#00f5ff]',
+                      'origin-bottom transition-all duration-250 ease-linear',
+                      'data-[lk-highlighted=true]:bg-[#ff006e] data-[lk-muted=true]:bg-[#7b2cbf]',
+                      'shadow-[0_0_10px_currentColor]',
+                    ])}
                   />
-                </MotionContainer>
-              )}
-            </AnimatePresence>
-          </div>
+                </BarVisualizer>
+                <div className="absolute right-0 bottom-6 left-0 text-center">
+                  <div className="neon-glow font-mono text-sm text-[#00ff9f]">
+                    AUDIO MODE ACTIVE
+                  </div>
+                </div>
+              </div>
+            </MotionContainer>
+          )}
 
-          <div
-            className={cn([
-              'grid',
-              chatOpen && classNames.secondTileChatOpen,
-              !chatOpen && classNames.secondTileChatClosed,
-            ])}
-          >
-            {/* Camera & Screen Share */}
-            <AnimatePresence>
-              {((cameraTrack && isCameraEnabled) || (screenShareTrack && isScreenShareEnabled)) && (
-                <MotionContainer
-                  key="camera"
-                  layout="position"
-                  layoutId="camera"
-                  initial={{
-                    opacity: 0,
-                    scale: 0,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0,
-                  }}
-                  transition={{
-                    ...ANIMATION_TRANSITION,
-                    delay: animationDelay,
-                  }}
-                  className="drop-shadow-lg/20"
-                >
-                  <VideoTrack
-                    trackRef={cameraTrack || screenShareTrack}
-                    width={(cameraTrack || screenShareTrack)?.publication.dimensions?.width ?? 0}
-                    height={(cameraTrack || screenShareTrack)?.publication.dimensions?.height ?? 0}
-                    className="bg-muted aspect-square w-[90px] rounded-md object-cover"
-                  />
-                </MotionContainer>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+          {isAvatar && (
+            // Avatar Agent - Retro Video Frame
+            <MotionContainer
+              key="avatar"
+              layoutId="avatar"
+              initial={{
+                scale: 0.8,
+                opacity: 0,
+                filter: 'blur(20px)',
+              }}
+              animate={{
+                scale: 1,
+                opacity: 1,
+                filter: 'blur(0px)',
+              }}
+              transition={{
+                ...ANIMATION_TRANSITION,
+                delay: animationDelay,
+                filter: {
+                  duration: 1,
+                },
+              }}
+              className="flex h-full w-full items-center justify-center"
+            >
+              <div className="retro-border pixel-corners relative aspect-square w-full max-w-md overflow-hidden rounded-lg bg-black">
+                <VideoTrack
+                  width={videoWidth}
+                  height={videoHeight}
+                  trackRef={agentVideoTrack}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-[#1a0f2e] to-transparent p-4">
+                  <div className="neon-glow font-mono text-sm text-[#00ff9f]">
+                    LEVEL 11 AGENT // LIVE
+                  </div>
+                </div>
+              </div>
+            </MotionContainer>
+          )}
+        </AnimatePresence>
+
+        {/* Camera & Screen Share - Small thumbnail */}
+        <AnimatePresence>
+          {((cameraTrack && isCameraEnabled) || (screenShareTrack && isScreenShareEnabled)) && (
+            <MotionContainer
+              key="camera"
+              layout="position"
+              layoutId="camera"
+              initial={{
+                opacity: 0,
+                scale: 0,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0,
+              }}
+              transition={{
+                ...ANIMATION_TRANSITION,
+                delay: animationDelay,
+              }}
+              className="absolute right-4 bottom-4 z-10"
+            >
+              <div className="overflow-hidden rounded border-2 border-[#00f5ff] shadow-[0_0_20px_rgba(0,245,255,0.5)]">
+                <VideoTrack
+                  trackRef={cameraTrack || screenShareTrack}
+                  width={(cameraTrack || screenShareTrack)?.publication.dimensions?.width ?? 0}
+                  height={(cameraTrack || screenShareTrack)?.publication.dimensions?.height ?? 0}
+                  className="bg-muted aspect-square w-[120px] object-cover"
+                />
+              </div>
+            </MotionContainer>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

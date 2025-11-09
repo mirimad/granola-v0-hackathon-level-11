@@ -1,4 +1,4 @@
-import { Public_Sans } from 'next/font/google';
+import { Press_Start_2P, Public_Sans } from 'next/font/google';
 import localFont from 'next/font/local';
 import { headers } from 'next/headers';
 import { ApplyThemeScript, ThemeToggle } from '@/components/app/theme-toggle';
@@ -7,6 +7,12 @@ import '@/styles/globals.css';
 
 const publicSans = Public_Sans({
   variable: '--font-public-sans',
+  subsets: ['latin'],
+});
+
+const pressStart2P = Press_Start_2P({
+  variable: '--font-press-start',
+  weight: '400',
   subsets: ['latin'],
 });
 
@@ -54,8 +60,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       className={cn(
         publicSans.variable,
         commitMono.variable,
-        'scroll-smooth font-sans antialiased'
+        pressStart2P.variable,
+        'scroll-smooth antialiased'
       )}
+      style={{ fontFamily: 'var(--font-press-start), monospace' }}
     >
       <head>
         {styles && <style>{styles}</style>}

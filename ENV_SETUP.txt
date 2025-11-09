@@ -1,0 +1,22 @@
+==================================================================
+ENVIRONMENT VARIABLES SETUP
+==================================================================
+
+Add this to your .env.local file:
+
+# Anthropic API Key for PDF CV Processing
+ANTHROPIC_API_KEY=your-anthropic-api-key
+
+Get your Anthropic API key from:
+https://console.anthropic.com/
+
+==================================================================
+EXISTING LIVEKIT VARIABLES (keep these as-is):
+==================================================================
+
+LIVEKIT_API_KEY=your-livekit-api-key
+LIVEKIT_API_SECRET=your-livekit-api-secret
+LIVEKIT_URL=wss://your-livekit-url.livekit.cloud
+
+==================================================================
+

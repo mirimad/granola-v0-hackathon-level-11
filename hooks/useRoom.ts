@@ -3,10 +3,18 @@ import { Room, RoomEvent, TokenSource } from 'livekit-client';
 import { AppConfig } from '@/app-config';
 import { toastAlert } from '@/components/livekit/alert-toast';
 
+type ConnectionDetails = {
+  serverUrl: string;
+  roomName: string;
+  participantName: string;
+  participantToken: string;
+};
+
 export function useRoom(appConfig: AppConfig) {
   const aborted = useRef(false);
   const room = useMemo(() => new Room(), []);
   const [isSessionActive, setIsSessionActive] = useState(false);
+  const [roomName, setRoomName] = useState<string | null>(null);
 
   useEffect(() => {
     function onDisconnected() {
@@ -77,11 +85,11 @@ export function useRoom(appConfig: AppConfig) {
         room.localParticipant.setMicrophoneEnabled(true, undefined, {
           preConnectBuffer: isPreConnectBufferEnabled,
         }),
-        tokenSource
-          .fetch({ agentName: appConfig.agentName })
-          .then((connectionDetails) =>
-            room.connect(connectionDetails.serverUrl, connectionDetails.participantToken)
-          ),
+        tokenSource.fetch({ agentName: appConfig.agentName }).then((connectionDetails) => {
+          const details = connectionDetails as unknown as ConnectionDetails;
+          setRoomName(details.roomName);
+          return room.connect(details.serverUrl, details.participantToken);
+        }),
       ]).catch((error) => {
         if (aborted.current) {
           // Once the effect has cleaned up after itself, drop any errors
@@ -102,7 +110,8 @@ export function useRoom(appConfig: AppConfig) {
 
   const endSession = useCallback(() => {
     setIsSessionActive(false);
+    setRoomName(null);
   }, []);
 
-  return { room, isSessionActive, startSession, endSession };
+  return { room, isSessionActive, roomName, startSession, endSession };
 }
